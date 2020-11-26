@@ -5,9 +5,9 @@
       <van-icon slot="left" name="cross" @click="$router.back()" />
     </van-nav-bar>
     <!-- /导航栏 -->
-    <van-form @submit="onSubmit" ref="loginForm">
-      <!-- 登陆表单   -->
-      <!--
+
+    <!-- 登陆表单   -->
+    <!--
       表单验证：
         1、给 van-field 组件配置 rules 验证规则
           参考文档：https://youzan.github.io/vant/#/zh-CN/form#rule-shu-ju-jie-gou
@@ -15,6 +15,7 @@
            如果验证通过，会触发 submit 事件
            如果验证失败，不会触发 submit
      -->
+    <van-form @submit="onSubmit" ref="loginForm">
       <van-field
         v-model="user.mobile"
         name="mobile"
@@ -58,7 +59,6 @@
         <van-button block type="info" native-type="submit" class="login-btn">
           登录
         </van-button>
-        <div></div>
       </div>
     </van-form>
   </div>
@@ -67,13 +67,13 @@
 <script>
 import { login, sendSms } from '@/api/user'
 export default {
-  name: 'LoginPage',
+  name: 'LoginIndex',
   components: {},
   props: {},
   data() {
     return {
       user: {
-        mobile: '13919123123',
+        mobile: '13911111111',
         code: '246810'
       },
       userFormRules: {
@@ -108,7 +108,7 @@ export default {
   methods: {
     async onSubmit() {
       //  1,获取表单数据
-      const user = this.user
+
       //   2. 表单验证
       this.$toast.loading({
         message: '登陆中...',
@@ -119,7 +119,7 @@ export default {
       })
       // 3, 提交表单那请求记录
       try {
-        const data = await login(user)
+        const { data } = await login(this.user)
         //    提示 success 或者 fail 的时候，会先把其它的 toast 先清除
         this.$store.commit('setUser', data.data)
         this.$toast.success('登录成功')
@@ -139,11 +139,9 @@ export default {
       // 1 校验手机号
       try {
         await this.$refs.loginForm.validate('mobile')
-
         this.$toast('验证通过')
       } catch (err) {
-        console.log('验证失败', err)
-        this.$toast('发送成功')
+        return console.log('验证失败', err)
       }
       // 2. 验证通过，显示倒计时
       this.isCountDownShow = true
@@ -154,7 +152,7 @@ export default {
       } catch (err) {
         console.log('发送失败', err)
         // 发送失败关闭倒计时
-        this.$isCountDownShow = false
+        this.isCountDownShow = false
         if (err.response.status === 429) {
           this.$toast('发送太频繁了，请稍后重试')
         } else {
@@ -182,7 +180,7 @@ export default {
   .login-btn-wrap {
     padding: 53px 33px;
     .login-btn {
-      background-color: #6db4fc;
+      background-color: #6db4fb;
       border: none;
     }
   }
