@@ -9,6 +9,7 @@
         size="small"
         round
         icon="search"
+        to="/search"
         >搜索</van-button
       >
     </van-nav-bar>
@@ -47,7 +48,7 @@
       position="bottom"
       :style="{ height: '100%' }"
     >
-      <channel-edit :my-channels="channels" />
+      <channel-edit :my-channels="channels" :active="active" />
     </van-popup>
     <!-- /频道弹出层 -->
   </div>
