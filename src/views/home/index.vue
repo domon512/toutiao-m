@@ -48,7 +48,11 @@
       position="bottom"
       :style="{ height: '100%' }"
     >
-      <channel-edit :my-channels="channels" :active="active" />
+      <channel-edit
+        :my-channels="channels"
+        :active="active"
+        @update-active="onUpdateActive"
+      />
     </van-popup>
     <!-- /频道弹出层 -->
   </div>
@@ -86,6 +90,13 @@ export default {
       } catch (err) {
         this.$toast('获取用户数据失败')
       }
+    },
+    onUpdateActive(index, isChennelEditShow = true) {
+      // 更新激活的频道项
+      this.active = index
+
+      // 关闭编辑频道弹层
+      this.isChennelEditShow = isChennelEditShow
     }
   }
 }

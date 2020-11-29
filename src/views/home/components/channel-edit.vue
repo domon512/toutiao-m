@@ -12,13 +12,13 @@
         @click="isEdit = !isEdit"
         >{{ isEdit ? '完成' : '编辑' }}</van-button
       >
-      >
     </van-cell>
     <van-grid :gutter="10" class="my-grid">
       <van-grid-item
         v-for="(channel, index) in MyChannels"
         :key="index"
         class="grid-item"
+        @click="onMyChannelClick(channel, index)"
       >
         <!--
           v-bind:class 语法
@@ -45,11 +45,12 @@
     </van-cell>
     <van-grid :gutter="10" class="recommend-grid">
       <van-grid-item
-        v-for="value in 8"
-        :key="value"
+        v-for="(channel, index) in recommendChannels"
+        :key="index"
         icon="plus"
         class="grid-item"
-        text="文字"
+        :text="channel.name"
+        @click="onAddChannel(channel)"
       />
     </van-grid>
     <!-- /频道推荐 -->
@@ -78,6 +79,38 @@ export default {
       fiexdChannels: [0] // 固定频道，不允许删除
     }
   },
+  computed: {
+    // 计算属性会观测内部依赖数据的变化
+    // 如果依赖的数据发生变化，则计算属性会重新执行
+    recommendChannels() {
+      // 数组的 filter 方法：遍历数组，把符合条件的元素存储到新数组中并返回
+      return this.allChannels.filter(channel => {
+        // const channels = []
+
+        // 数组的 find 方法：遍历数组，把符合条件的第1个元素返回
+        return !this.MyChannels.find(myChannel => {
+          return myChannel.id === channel.id
+        })
+
+        // return channels
+      })
+    }
+    // recommendChannels() {
+    //   const channels = []
+    //   this.allChannels.forEach(channel => {
+    //     // find 遍历数组，找到满足条件的元素项
+    //     const ret = this.MyChannels.find(myChannel => {
+    //       return myChannel.id === channel.id
+    //     })
+    //     // 如果我的频道中不包括该频道项，则收集到推荐频道中
+    //     if (!ret) {
+    //       channels.push(channel)
+    //     }
+    //   })
+    //   // 把计算结果返回
+    //   return channels
+    // }
+  },
   created() {
     this.loadAllChannels()
   },
@@ -89,6 +122,31 @@ export default {
         this.allChannels = data.data.channels
       } catch (err) {
         this.$toast('获取数据失败')
+      }
+    },
+    onAddChannel(channel) {
+      this.MyChannels.push(channel)
+    },
+    onMyChannelClick(channel, index) {
+      if (this.isEdit) {
+        // 1. 如果是固定频道，则不删除
+        if (this.fiexdChannels.includes(channel.id)) {
+          return
+        }
+
+        // 2. 删除频道项
+        this.MyChannels.splice(index, 1)
+
+        // 3. 如果删除的激活频道之前的频道，则更新激活的频道项
+        // 参数1：要删除的元素的开始索引（包括）
+        // 参数2：删除的个数，如果不指定，则从参数1开始一直删除到最后
+        if (index <= this.active) {
+          // 让激活频道的索引 - 1
+          this.$emit('update-active', this.active - 1, true)
+        }
+      } else {
+        // 非编辑状态，执行切换频道
+        this.$emit('update-active', index, false)
       }
     }
   }
