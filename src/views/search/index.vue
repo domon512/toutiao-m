@@ -4,7 +4,7 @@
     <!--
       Tips: 在 van-search 外层增加 form 标签，且 action 不为空，即可在 iOS 输入法中显示搜索按钮
      -->
-    <form action="/">
+    <form action="/" class="search-form">
       <van-search
         v-model="searchText"
         show-action
@@ -22,11 +22,20 @@
     <!-- /搜索结果 -->
 
     <!-- 联想建议 -->
-    <search-suggestion v-else-if="searchText" :search-text="searchText" />
+    <search-suggestion
+      v-else-if="searchText"
+      :search-text="searchText"
+      @search="onSearch"
+    />
     <!-- /联想建议 -->
 
     <!-- 搜索历史记录 -->
-    <search-history v-else />
+    <search-history
+      v-else
+      :search-histories="searchHistories"
+      @clear-search-histories="searchHistories = []"
+      @search="onSearch"
+    />
     <!-- /搜索历史记录 -->
   </div>
 </template>
@@ -35,6 +44,7 @@
 import SearchHistory from './components/search-history'
 import SearchSuggestion from './components/search-suggestion'
 import SearchResult from './components/search-result'
+import { setItem, getItem } from '@/utils/storage'
 
 export default {
   name: 'SearchIndex',
@@ -47,15 +57,29 @@ export default {
   data() {
     return {
       searchText: '',
-      isResultShow: false // 控制搜索结果的展示
+      isResultShow: false, // 控制搜索结果的展示
+      searchHistories: getItem('TOUTIAO_SEARCH_HISTORIES') || [] // 搜索的历史记录数据 getItem
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+    searchHistories(value) {
+      setItem('TOUTIAO_SEARCH_HISTORIES', value)
+    }
+  },
   created() {},
   methods: {
     onSearch(val) {
-      console.log(val)
+      // 更新文本框内容
+      this.searchText = val
+      // 存储搜索历史记录
+      // 渲染搜索结果
+      const index = this.searchHistories.indexOf(val)
+      if (index !== -1) {
+        this.searchHistories.splice(index, 1)
+      }
+      this.searchHistories.unshift(val)
+      // 渲染搜索结果
       this.isResultShow = true
     },
     onCancel() {
