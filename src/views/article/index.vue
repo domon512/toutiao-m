@@ -66,7 +66,35 @@
           ref="article-content"
         ></div>
         <van-divider>正文结束</van-divider>
+        <!-- 文章评论列表 -->
+        <comment-list
+          :source="article.art_id"
+          @onUpdta="totalCommentCount = $event.total_count"
+        />
+        <!-- /文章评论列表 -->
+        <!-- 底部区域 -->
+        <div class="article-bottom">
+          <van-button class="comment-btn" type="default" round size="small"
+            >写评论</van-button
+          >
+          <van-icon name="comment-o" :info="totalCommentCount" color="#777" />
+          <!-- 收藏 -->
+          <collect-article
+            class="btn-item"
+            v-model="article.is_collected"
+            :article-id="article.art_id"
+          />
+          <!-- <van-icon color="#777" name="good-job-o" /> -->
+          <like-article
+            v-model="article.attitude"
+            class="btn-item"
+            :article-id="article.art_id"
+          />
+          <van-icon name="share" color="#777777"></van-icon>
+        </div>
+        <!-- /底部区域 -->
       </div>
+
       <!-- /加载完成-文章详情 -->
 
       <!-- 加载失败：404 -->
@@ -84,18 +112,6 @@
       </div>
       <!-- /加载失败：其它未知错误（例如网络原因或服务端异常） -->
     </div>
-
-    <!-- 底部区域 -->
-    <div class="article-bottom">
-      <van-button class="comment-btn" type="default" round size="small"
-        >写评论</van-button
-      >
-      <van-icon name="comment-o" info="123" color="#777" />
-      <van-icon color="#777" name="star-o" />
-      <van-icon color="#777" name="good-job-o" />
-      <van-icon name="share" color="#777777"></van-icon>
-    </div>
-    <!-- /底部区域 -->
   </div>
 </template>
 
@@ -103,10 +119,17 @@
 import { getArticleById } from '@/api/article'
 import { ImagePreview } from 'vant'
 import { addFollow, deleteFollow } from '@/api/user'
+import CollectArticle from '@/components/collect-article'
+import LikeArticle from '@/components/like-article'
+import CommentList from './components/comment-list'
 
 export default {
   name: 'ArticleIndex',
-  components: {},
+  components: {
+    CollectArticle,
+    LikeArticle,
+    CommentList
+  },
   props: {
     articleId: {
       type: [Number, String, Object],
@@ -118,7 +141,8 @@ export default {
       article: {}, // 文章详细
       loading: true, // 文件加载中的状态
       errStatus: 0, // 失败的状态码
-      followLoading: false // 加载状态
+      followLoading: false, // 加载状态
+      totalCommentCount: 0
     }
   },
   computed: {},
@@ -195,12 +219,18 @@ export default {
     position: fixed;
     left: 0;
     right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #fff;
+  }
+  .article-detail {
+    position: fixed;
+    left: 0;
+    right: 0;
     top: 92px;
     bottom: 88px;
     overflow-y: scroll;
     background-color: #fff;
-  }
-  .article-detail {
     .article-title {
       font-size: 40px;
       padding: 50px 32px;
@@ -294,12 +324,29 @@ export default {
       line-height: 46px;
       color: #a7a7a7;
     }
-    .van-icon {
+    /deep/ .van-icon {
       font-size: 40px;
+    }
+    .comment-icon {
+      top: 2px;
+      color: #777;
       .van-info {
         font-size: 16px;
         background-color: #e22829;
       }
+    }
+    .btn-item {
+      border: none;
+      padding: 0;
+      height: 40px;
+      line-height: 40px;
+      color: #777777;
+    }
+    .collect-btn--collected {
+      color: #ffa500;
+    }
+    .like-btn--liked {
+      color: #e5645f;
     }
   }
 }
